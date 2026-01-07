@@ -1,0 +1,135 @@
+# -------------------------------
+# Python
+# -------------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pkl
+*.egg-info/
+*.egg
+.eggs/
+*.manifest
+*.spec
+.python-version
+
+# Bytecode caches
+*$py.class
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+.env/
+env.bak/
+venv.bak/
+
+# Test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+*.tmp
+*.bak
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+sdist/
+wheels/
+*.egg-info/
+MANIFEST
+pip-wheel-metadata/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# -------------------------------
+# Node / Frontend
+# -------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+.pnpm-debug.log
+
+# Build outputs
+dist/
+build/
+.cache/
+.tmp/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+
+# Frontend environments
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env
+
+# -------------------------------
+# IDE / Editor
+# -------------------------------
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+
+# JetBrains
+*.iml
+.idea/
+out/
+
+# VSCode settings
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# -------------------------------
+# OS / System
+# -------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# -------------------------------
+# Logs / Runtime
+# -------------------------------
+*.log
+logs/
+log/
+*.out
+*.err
+
+# -------------------------------
+# Misc / Temporary files
+# -------------------------------
+*.swp
+*.swo
+*.tmp
+*.bak
+*.orig
+*.rej
+*.save
+*.pid
+*.seed
+*.dump
+*.lock
+

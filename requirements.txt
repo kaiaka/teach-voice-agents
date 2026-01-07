@@ -1,0 +1,12 @@
+websocket-client
+fastapi
+uvicorn
+pydantic
+aiofiles
+python-dotenv
+aiohttp
+pyaudio
+pydub
+openai
+webrtcvad
+websockets
