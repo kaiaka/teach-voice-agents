@@ -16,7 +16,14 @@ python --version
 
 #### Install PortAudio (global)
 ```bash
-brew install portaudio  # on macOS
+
+# macOS
+brew install portaudio
+
+# Linux
+sudo apt-get install portaudio19-dev        # ggf
+sudo apt install python3-pyaudio 
+
 ```
 
 #### Create virtual environment

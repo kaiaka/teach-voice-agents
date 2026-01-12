@@ -73,6 +73,8 @@ class RealtimeClient:
 
     def _on_open(self, ws, *_):
         dbg("open")
+
+        # send OpenAI setup
         ws.send(json.dumps({
             "type": "session.update",
             "session": {
@@ -98,6 +100,7 @@ class RealtimeClient:
         ev = json.loads(raw)
         typ = ev.get("type", "")
 
+        # OpenAI: session created
         if typ == "session.created":
             ws.send(json.dumps({
                 "type": "conversation.item.create",
@@ -109,10 +112,8 @@ class RealtimeClient:
                     ]
                 }
             }))
-
-            # print available microphones
-            list_devices()
             
+            # start microphone stream, sending chunks to OpenAI Websocket
             threading.Thread(
                 target=lambda: stream_audio(
                     lambda chunk: ws.send(json.dumps({
@@ -125,12 +126,21 @@ class RealtimeClient:
                 daemon=True
             ).start()
 
+        # OpenAI: USER input started
         if typ == "input_audio_buffer.speech_started":
             now = time.monotonic()
+
+            # filter brief speech start events: at least 250ms since last stop
+            # vad = "voice activity detection"
             if now - self._last_vad_stop_ts > 0.25:
                 self._last_vad_stop_ts = now
+
+                # stop SYSTEM audio output 
                 self._schedule_in_loop(self.speaker.stop_audio)
+                # ensure incoming system audio to be dropped
                 self._drop_audio_until_new_response = True
+
+                # logging and visualization
                 if self.ai_audio_logger:
                     self.ai_audio_logger.flush_segment()
                 self.log_event("speech_started", source="user", value="", extra="flush audio output")
@@ -138,9 +148,11 @@ class RealtimeClient:
                     self.speech_visualizer.stop_speaking()
             self.log_event("message_event",source="realtime_api",value="speech_started")
         
+        # OpenAI: USER input stopped
         if typ == "input_audio_buffer.speech_stopped":
             self.log_event("message_event",source="realtime_api",value="speech_stopped")
 
+        # OpenAI: USER transcription completed
         if typ == "conversation.item.input_audio_transcription.completed":
             text = ev["transcript"].strip()
             print("User:", text)
@@ -148,6 +160,7 @@ class RealtimeClient:
             self.log_event("user_text", source="user", value=text)
             self.log_event("message_event",source="realtime_api",value="input_audio_transcription.completed")
 
+        # OpenAI: SYSTEM response started
         if typ in ("response.created", "response.started"):
             rid = ev.get("response", {}).get("id")
             if rid and rid != self._current_response_id:
@@ -157,6 +170,7 @@ class RealtimeClient:
                 if self.speech_visualizer:
                     self.speech_visualizer.start_speaking()
 
+        # OpenAI: incoming audio chunks for SYSTEM response audio
         if typ == "response.audio.delta":
             data = base64.b64decode(ev["delta"])
             rid = ev.get("response_id", self._current_response_id)
@@ -167,15 +181,18 @@ class RealtimeClient:
                 if self.ai_audio_logger:
                     self.ai_audio_logger.mark_start(rid)
 
+            # play audio on speaker 
             if not self._drop_audio_until_new_response:
                 if self.ai_audio_logger:
                     self.ai_audio_logger.append(data)
                 self._schedule_in_loop(self.speaker.play_audio, data)
 
+        # OpenAI: incoming transcript deltas for SYSTEM response
         if typ == "response.audio_transcript.delta":
             rid = ev["response_id"]
             self._ai_buf.setdefault(rid, []).append(ev["delta"])
 
+        # OpenAI: SYSTEM response done: means NOT PLAYBACK but generation done
         if typ == "response.done":
             rid = ev["response"]["id"]
             self.log_event("message_event", source="realtime_api", value="response.done", extra=json.dumps({"rid": rid}))
@@ -187,6 +204,7 @@ class RealtimeClient:
                 self._dialog_buffer.append(f"AI: {text.strip()}")
                 self.log_event("ai_response", source="realtime_api", value=text.strip())
 
+        # Error Handling
         if typ == "error":
             dbg("ERROR", json.dumps(ev))
             self.log_event("message_event",source="realtime_api",value="error",extra=json.dumps(ev))
@@ -204,6 +222,7 @@ class RealtimeClient:
             self.speech_visualizer.stop_speaking()
 
     def run(self):
+        # Initiate OpenAI WebSocket
         ws = websocket.WebSocketApp(
             URL,
             header=HEADERS,

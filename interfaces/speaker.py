@@ -66,6 +66,7 @@ async def play_audio(data: bytes) -> None:
         except Exception:
             return
 
+# monitor SYSTEM output silence
 async def _monitor_silence():
     global _last_audio_time, _speaking_active
     while True:
