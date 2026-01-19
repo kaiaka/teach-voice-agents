@@ -49,7 +49,8 @@ async def main():
 
             if SAY_EVENT.is_set():
                 SAY_EVENT.clear()
-                client.say("Please get the supervisor. He's waiting outside the room.")
+                # client.say("Please get the supervisor. He's waiting outside the room.")
+                client.say("Attention. There is only a limited amount of cake! Please take only one piece. Thank you!")
                 
             await asyncio.sleep(0.5)
     finally:
